@@ -1,0 +1,28 @@
+{
+	"name": "easy-git",
+	"version": "1.0.0",
+	"description": "CLI package with simplified aliases for git commands",
+	"main": "./bin/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/dillionmegida/easy-git.git"
+	},
+	"keywords": [
+		"git, easy-git, git-aliases"
+	],
+	"author": "Dillion Megida <dillionmegida@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/dillionmegida/easy-git/issues"
+	},
+	"homepage": "https://github.com/dillionmegida/easy-git#readme",
+	"bin": {
+		"easy-git": "./bin/index.js"
+	},
+	"dependencies": {
+		"yargs": "^15.3.1"
+	}
+}
