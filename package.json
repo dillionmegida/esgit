@@ -1,10 +1,12 @@
 {
 	"name": "easy-git",
-	"version": "1.0.0",
+	"version": "0.0.0-semantically-released",
 	"description": "CLI package with simplified aliases for git commands",
 	"main": "./bin/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"lint": "eslint \"src/*.js\" \"bin/index.js\"",
+        "test": "npm run lint",
+        "commit": "git-cz"
 	},
 	"repository": {
 		"type": "git",
@@ -23,6 +25,19 @@
 		"easy-git": "./bin/index.js"
 	},
 	"dependencies": {
+		"chalk": "^4.0.0",
 		"yargs": "^15.3.1"
+	},
+	"config": {
+        "ghooks": {
+            "pre-commit": "npm run test",
+			"commit-msg": "validate-commit-msg"
+		}
+	},
+	"devDependencies": {
+        "semantic-release": "^17.0.4",
+        "ghooks": "^2.0.4",
+		"commitizen": "^4.0.4",
+		"validate-commit-msg": "^2.14.0"
 	}
 }

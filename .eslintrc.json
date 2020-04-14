@@ -1,0 +1,16 @@
+{
+	"parserOptions": {
+		"ecmaVersion": 2020
+	},
+	"env": {
+		"es6": true,
+		"browser": true,
+		"node": true
+	},
+	"rules": {
+		"no-var": 2,
+		"semi": 0,
+		"func-style": 2,
+		"no-unused-expressions": 1
+	}
+}

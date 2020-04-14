@@ -2,6 +2,7 @@ const { pkgName } = require("./config");
 const commands = require("./commands");
 const { exec } = require("child_process");
 const readline = require("readline");
+const chalk = require("chalk");
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -11,7 +12,7 @@ const rl = readline.createInterface({
 /**
  * Gets yes or no answer from the user via the terminal
  * @param {String=} question which will be answered yes or no
- * @returns {Promise} which either resolves('yes') or 'no
+ * @returns {Promise} which either resolves('yes') or ('no')
  */
 const yesOrNo = (question) => {
 	return new Promise((resolve, reject) => {
@@ -28,10 +29,49 @@ const yesOrNo = (question) => {
 /**
  * Prints message to the terminal
  * @param {String=} message
+ * @param {String=} color defined by chalk package
  */
-const msg = (message) => process.stdout.write(message + "\n");
+const msg = (message, color = chalk.white) => console.log(color(message));
 
-const showGitCommand = (command) => msg(`git-command:  git ${command}\n`);
+const showGitCommand = (command) =>
+	msg(
+		`git command:\n  git ${command.replace("git ", "")}\n`,
+		chalk.yellowBright
+	);
+
+// ran when there's no predefined alias by this package
+/**
+ * Attempt to run git and the command, for cases where this package does not have the command
+ * @param {String=} command
+ * @param {Array=} options
+ */
+const attemptGitCommand = (command, options) => {
+	if (options) {
+		if (!Array.isArray(options))
+			throw new Error(`'option' params must be an array`);
+		options = options
+			.map((option) =>
+				option.length === 1 ? `-${option}` : `--${option}`
+			)
+			.join(" ");
+	}
+	msg(
+		pkgName +
+			": '" +
+			command +
+			"' does not exist. See '" +
+			pkgName +
+			" all'\n\n" +
+			"Attempting to do " +
+			"'git " +
+			command +
+			" " +
+			options +
+			"'\n",
+		chalk.blue
+	);
+	execCommand(`git ${command} ${options}`);
+};
 
 /**
  * Execute command on the terminal
@@ -51,62 +91,13 @@ const execCommand = (command) => {
 };
 
 /**
- * Print real git command to the terminal and execute it
- * @param {String=} command
- */
-const execute = (command, options) => {
-	let gitCommand = commands[command] !== undefined && commands[command].git;
-	if (gitCommand === command) {
-        // then commands are the same, not changed by easy-git
-        // get all options, and use git command
-		let fullCommand = `git`;
-        const optionKeys = Object.keys(options);
-		optionKeys.forEach((key) => {
-            if(key === '$0') {
-                return;
-            }
-			else if (key === "_") {
-				fullCommand += ` ${options[key].join(' ')}`;
-			} else if (options[key] === true) {
-				// if key length is one, the an alias like -b is used, else, the complete name e.g --status is used
-				fullCommand += ` ${
-					key.length === 1 ? ` -${key}` : ` --${key}`
-				}`;
-			} else {
-				fullCommand += ` ${key} ${options[key]}`;
-			}
-		});
-        showGitCommand(fullCommand.replace('git ', ''));
-		return execCommand(fullCommand);
-	}
-	if (gitCommand === undefined || gitCommand === false) {
-		process.stdout.write(
-			pkgName +
-				": '" +
-				command +
-				"' does not exist. See '" +
-				pkgName +
-				" all'\n\n" +
-				"Attempting to do " +
-				"'git " +
-				command +
-				"'\n"
-		);
-		execCommand(`git ${command}`);
-		return;
-	}
-	showGitCommand(command);
-	execCommand(`git ${command}`);
-};
-
-/**
  * Print the meaning of a command to the terminal
  * @param {String=} command
  */
 const defineCommand = async (command) => {
 	const savedCommand = commands[command];
 	if (savedCommand === undefined) {
-		msg(`${pkgName}:  '${command}' does not exist.`);
+		msg(`${pkgName}:  '${command}' does not exist.`, chalk.redBright);
 		const choice = await yesOrNo(
 			`Execute 'git ${command} --help'? (y/n): `
 		);
@@ -129,13 +120,14 @@ const defineCommand = async (command) => {
 			return rl.close();
 		}
 	}
-    msg(`${command}:  ${savedCommand.meaning}`);
-    return process.exit(0   )
+	msg(`${command}:  ${savedCommand.meaning}`, chalk.yellowBright);
+	return process.exit(0);
 };
 
 module.exports = {
 	execCommand,
-	execute,
 	msg,
 	defineCommand,
+	showGitCommand,
+	attemptGitCommand,
 };
