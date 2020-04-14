@@ -5,8 +5,8 @@
 	"main": "./bin/index.js",
 	"scripts": {
 		"lint": "eslint \"src/*.js\" \"bin/index.js\"",
-        "test": "npm run lint",
-        "commit": "git-cz"
+		"test": "npm run lint",
+		"commit": "git-cz"
 	},
 	"repository": {
 		"type": "git",
@@ -29,15 +29,19 @@
 		"yargs": "^15.3.1"
 	},
 	"config": {
-        "ghooks": {
-            "pre-commit": "npm run test",
+		"ghooks": {
+			"pre-commit": "npm run test",
 			"commit-msg": "validate-commit-msg"
+		},
+		"commitizen": {
+			"path": "cz-conventional-changelog"
 		}
 	},
 	"devDependencies": {
-        "semantic-release": "^17.0.4",
-        "ghooks": "^2.0.4",
 		"commitizen": "^4.0.4",
+		"cz-conventional-changelog": "^3.1.0",
+		"ghooks": "^2.0.4",
+		"semantic-release": "^17.0.4",
 		"validate-commit-msg": "^2.14.0"
 	}
 }
