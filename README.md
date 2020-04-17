@@ -1,4 +1,4 @@
-# easy-git
+# egit - easy-git
 
 CLI package with simplified aliases for git commands.
 
@@ -38,7 +38,7 @@ git: '--short || -s'
 
 repo should not allow options like -- or -, all commands should be names
 
-the format is easy-git command (if value required ? value) ...options
+the format is egit command (if value required ? value) ...options
 
 checkout -b branch not showing the u have entered a new branch
 

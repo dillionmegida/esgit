@@ -1,5 +1,5 @@
 {
-	"name": "easy-git",
+	"name": "egit",
 	"version": "0.0.0-semantically-released",
 	"description": "CLI package with simplified aliases for git commands",
 	"main": "./bin/index.js",
@@ -12,19 +12,19 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/dillionmegida/easy-git.git"
+		"url": "git+https://github.com/dillionmegida/egit.git"
 	},
 	"keywords": [
-		"git, easy-git, git-aliases"
+		"git, easy-git, e-git, git-aliases"
 	],
 	"author": "Dillion Megida <dillionmegida@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/dillionmegida/easy-git/issues"
+		"url": "https://github.com/dillionmegida/egit/issues"
 	},
-	"homepage": "https://github.com/dillionmegida/easy-git#readme",
+	"homepage": "https://github.com/dillionmegida/egit#readme",
 	"bin": {
-		"easy-git": "./bin/index.js"
+		"egit": "./bin/index.js"
 	},
 	"dependencies": {
 		"chalk": "^4.0.0"
