@@ -68,7 +68,10 @@ module.exports = (command, options) => {
 
 			if (requireValues !== undefined) {
 				if (rest.length < 1 || requireValues.length > rest.length)
-					return requireValueMsg(allCommands, commandOption.requireValues);
+					return requireValueMsg(
+						allCommands,
+						commandOption.requireValues
+					);
 
 				const values =
 					commandOption.requireValues.length < 2

@@ -25,16 +25,16 @@ while pushing, the progress of git was not displayed...ahh
 test all commands must have options key, at least null
 
 maximum structure of a command should be status: {
-		meaning: "Show the working tree status",
-		git: "status",
-		options: {
-			"short-format": {
-                meaning: "Show short format of git status",
-                requireValue: false,
-                git: '--short || -s'
-			},
-		},
-	},
+meaning: "Show the working tree status",
+git: "status",
+options: {
+"short-format": {
+meaning: "Show short format of git status",
+requireValue: false,
+git: '--short || -s'
+},
+},
+},
 
 repo should not allow options like -- or -, all commands should be names
 

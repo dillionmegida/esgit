@@ -13,7 +13,7 @@
  */
 module.exports = {
 	clone: {
-        git: "clone"
+		git: "clone",
 	},
 	init: {
 		git: "init",
@@ -25,16 +25,16 @@ module.exports = {
 		git: "add",
 	},
 	branch: {
-        meaning: "List, create, or delete branches",
+		meaning: "List, create, or delete branches",
 		git: "branch",
 		options: {
 			"--delete-force": {
 				meaning: "Delete branch",
-                requireValues: ['branch-name'],
-                git: '--delete --force'
-            },
-        },
-        acceptValue: true
+				requireValues: ["branch-name"],
+				git: "--delete --force",
+			},
+		},
+		acceptValue: true,
 	},
 	rm: {
 		git: "rm",
@@ -46,7 +46,7 @@ module.exports = {
 			"--short-format": {
 				meaning: "Show short format of git status",
 				git: "--short",
-            }
+			},
 		},
 	},
 	commit: {

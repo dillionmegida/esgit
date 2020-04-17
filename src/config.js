@@ -1,4 +1,4 @@
 module.exports = {
-    pkgName: "easy-git",
-    pkgDefine: "CLI package with simplified aliases for git commands."
+	pkgName: "easy-git",
+	pkgDefine: "CLI package with simplified aliases for git commands.",
 };
