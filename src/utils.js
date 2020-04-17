@@ -134,8 +134,8 @@ const defineCommand = async (command, option) => {
 
 			rl.close();
 
-            if (choice === "y") return execCommand(`git ${command} --help`)
-            else process.exit(0)
+			if (choice === "y") return execCommand(`git ${command} --help`);
+			else process.exit(0);
 		}
 
 		msg(`${command}:  ${savedCommand.meaning}`, colors.yellow);
@@ -143,7 +143,7 @@ const defineCommand = async (command, option) => {
 	}
 
 	if (option === "help") {
-		return defineCommand(command);
+		return getCommandHelp(command);
 	}
 };
 
@@ -206,8 +206,6 @@ const writeAllCommandsHelp = () => {
 	writeToFile(title, content, "../help/allcommands.txt");
 };
 
-writeAllCommandsHelp();
-
 const getAllCommandsHelp = () => {
 	readFile("../help/allcommands.txt");
 };
@@ -227,4 +225,6 @@ module.exports = {
 	requireValueMsg,
 	getAllCommandsHelp,
 	getCommandHelp,
+	writeAllCommandsHelp,
+	defineCommand,
 };
