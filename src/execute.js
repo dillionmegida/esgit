@@ -1,62 +1,93 @@
 const {
-	showGitCommand,
-	execCommand,
 	msg,
+	colors,
 	attemptGitCommand,
-} = require("./functions");
+	getAllCommands,
+	showGitAndExecute,
+	requireValueMsg,
+} = require("./utils");
 const commands = require("./commands");
-const chalk = require("chalk");
 const { pkgName } = require("./config");
 
 /**
  * Print real git command to the terminal and execute it
  * @param {String=} command
- * @param {Object=} options
+ * @param {Array} options [command, options] = argv._
+ * @param {Object} allArguments
  */
 module.exports = (command, options) => {
 	const commandObject = commands[command] || undefined;
-	const gitCommand = commandObject ? commandObject.git : null;
+	const gitCommand = commandObject ? commandObject.git : undefined;
 	let fullCommand = `git ${gitCommand}`;
+	const allCommands = getAllCommands();
 
-	if (gitCommand === command) {
-		// the commands are the same
-		const commandOptions = commandObject.options || undefined;
+	if (commandObject === undefined) {
+		// no predefined command
+		return attemptGitCommand(allCommands, `'${command}' does not exist`);
+	}
 
-		if (options.length > 0) {
-			// then there are options
-			const [first] = options;
+	if (options.length === 0) {
+		// no options passed
 
-			if (commandOptions !== undefined && commandOptions[first]) {
-				// then this package has the option
-
-				if (commandOptions[first].requireValue === false) {
-					// then the command can be executed without a value
-					msg(
-						first + `:\n  ${commandObject.options[first].meaning}`,
-						chalk.green
-					);
-
-					fullCommand += ` ${commandOptions[first].git}`;
-					showGitCommand(fullCommand);
-					return execCommand(fullCommand);
-				}
-			}
+		if (commandObject.requireValues) {
+			const { requireValues } = commandObject;
+			requireValueMsg(command, requireValues.join(", "));
+			return process.exit(0);
 		}
 
-		// run the command with git directly
-		options.forEach((key) => {
-			fullCommand += key.length === 1 ? ` -${key}` : ` --${key}`;
-		});
+		if (commandObject.meaning) msg(commandObject.meaning, colors.yellow);
 
-		attemptGitCommand(command, options);
-		// showGitCommand(fullCommand);
-		// return execCommand(fullCommand);
+		return showGitAndExecute(fullCommand);
 	}
 
-	if (gitCommand === undefined || gitCommand === false) {
-		return attemptGitCommand(command);
+	if (commandObject.requireValues) {
+		const { requireValues } = commandObject;
+		const [val1, val2] = options;
+		const nums = requireValues.length;
+
+		if (val2 === undefined && nums === 2) {
+			requireValueMsg(command, requireValues.join(", "));
+			return process.exit(0);
+		}
+
+		fullCommand += ` ${val1}`;
+		if (val2) fullCommand += ` ${val2}`;
+
+		return showGitAndExecute(fullCommand);
 	}
 
-	showGitCommand(command);
-	execCommand(`git ${command}`);
+	if (commandObject.options) {
+		const [option, ...rest] = options;
+		const commandOption = commandObject.options[option] || undefined;
+
+		if (commandOption !== undefined) {
+			fullCommand += ` ${commandOption.git}`;
+			msg(commandOption.meaning, colors.yellow);
+
+			const requireValues = commandOption.requireValues || undefined;
+
+			if (requireValues !== undefined) {
+				if (rest.length < 1 || requireValues.length > rest.length)
+					return requireValueMsg(allCommands, commandOption.requireValues);
+
+				const values =
+					commandOption.requireValues.length < 2
+						? rest[0]
+						: rest.slice(0, 2).join(" "); // slice incase more options are passed
+
+				fullCommand += ` ${values}`;
+			}
+
+			return showGitAndExecute(fullCommand);
+		}
+	}
+
+	if (commandObject.acceptValue) {
+		const [...values] = options;
+		fullCommand += ` ${values.join(" ")}`;
+		return showGitAndExecute(fullCommand);
+	}
+
+	// if everything above does not get executed, this package cannot handle the command
+	attemptGitCommand(allCommands, `'${allCommands}' could not be executed`);
 };

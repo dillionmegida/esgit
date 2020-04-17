@@ -5,8 +5,9 @@
 	"main": "./bin/index.js",
 	"scripts": {
 		"lint": "eslint \"src/*.js\" \"bin/index.js\"",
-		"test": "npm run lint",
-		"commit": "git-cz"
+		"test": "npm run lint && mocha || true",
+        "commit": "git-cz",
+        "preRunPackage": "node bin/index.js"
 	},
 	"repository": {
 		"type": "git",
@@ -25,22 +26,24 @@
 		"easy-git": "./bin/index.js"
 	},
 	"dependencies": {
-		"chalk": "^4.0.0",
-		"yargs": "^15.3.1"
+		"chalk": "^4.0.0"
 	},
 	"config": {
 		"ghooks": {
 			"pre-commit": "npm run test",
-			"commit-msg": "validate-commit-msg"
+            "commit-msg": "validate-commit-msg",
+            "post-merge": "npm run preRunPackage"
 		},
 		"commitizen": {
 			"path": "cz-conventional-changelog"
 		}
 	},
 	"devDependencies": {
+		"chai": "^4.2.0",
 		"commitizen": "^4.0.4",
 		"cz-conventional-changelog": "^3.1.0",
 		"ghooks": "^2.0.4",
+		"mocha": "^7.1.1",
 		"semantic-release": "^17.0.4",
 		"validate-commit-msg": "^2.14.0"
 	}
