@@ -1,6 +1,6 @@
 {
-	"name": "egit",
-	"version": "0.0.0-semantically-released",
+	"name": "esgit",
+	"version": "0.0.1",
 	"description": "CLI package with simplified aliases for git commands",
 	"main": "./bin/index.js",
 	"scripts": {
@@ -14,7 +14,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/dillionmegida/egit.git"
+		"url": "https://github.com/dillionmegida/esgit.git"
 	},
 	"files": [
 		"src",
@@ -26,11 +26,11 @@
 	"author": "Dillion Megida <dillionmegida@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/dillionmegida/egit/issues"
+		"url": "https://github.com/dillionmegida/esgit/issues"
 	},
-	"homepage": "https://github.com/dillionmegida/egit#readme",
+	"homepage": "https://github.com/dillionmegida/esgit#readme",
 	"bin": {
-		"egit": "./bin/index.js"
+		"esgit": "./bin/index.js"
 	},
 	"dependencies": {
 		"chalk": "^4.0.0"
