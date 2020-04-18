@@ -21,7 +21,7 @@
 		"bin"
 	],
 	"keywords": [
-		"git, easy-git, e-git, git-aliases"
+		"git, easy-git, esgit, git-aliases"
 	],
 	"author": "Dillion Megida <dillionmegida@gmail.com>",
 	"license": "MIT",
@@ -33,7 +33,8 @@
 		"esgit": "./bin/index.js"
 	},
 	"dependencies": {
-		"chalk": "^4.0.0"
+		"chalk": "^4.0.0",
+		"cross-cmd": "^1.0.0"
 	},
 	"config": {
 		"ghooks": {

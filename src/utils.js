@@ -5,6 +5,7 @@ const readline = require("readline");
 const chalk = require("chalk");
 const fs = require("fs");
 const path = require("path");
+const crossCommand = require("cross-cmd");
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -173,7 +174,9 @@ const writeToFile = (title, body, pathToFile) => {
 };
 
 const readFile = (pathToFile) => {
-	execCommand(`cat ${path.join(__dirname, pathToFile)}`);
+	execCommand(
+		`${crossCommand("readfile")} ${path.join(__dirname, pathToFile)}`
+	);
 };
 
 const writeCommandHelp = (command) => {
