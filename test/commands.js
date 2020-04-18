@@ -1,4 +1,4 @@
-var assert = require("chai").assert;
+const assert = require("chai").assert;
 const commands = require("../src/commands");
 
 describe("Commands", function () {
@@ -31,6 +31,45 @@ describe("Commands", function () {
 						property
 					);
 				}
+			});
+		});
+
+		describe("'options' property if present", function () {
+			it("should be of type object", function () {
+				commandKeys.forEach(function (key) {
+					let command = commands[key];
+					for (let property in command) {
+						if (property === "options")
+							assert.typeOf(command[property], "object");
+					}
+				});
+			});
+			it("should have properties that begin with double hyphens", function () {
+				commandKeys.forEach(function (key) {
+					let command = commands[key];
+					for (let property in command) {
+						if (property === "options") {
+							for (let prop in command[property])
+								if (!/-{2}/.test(prop) || /-{3}/.test(prop))
+									assert.ok(false);
+						}
+					}
+				});
+			});
+			it("should have properties that have 'meaning' property", function () {
+				commandKeys.forEach(function (key) {
+					let command = commands[key];
+					for (let property in command) {
+						if (property === "options") {
+							for (let prop in command[property]) {
+								assert.property(
+									command[property][prop],
+									"meaning"
+								);
+							}
+						}
+					}
+				});
 			});
 		});
 
