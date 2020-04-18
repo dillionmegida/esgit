@@ -4,7 +4,7 @@
 	"description": "CLI package with simplified aliases for git commands",
 	"main": "./bin/index.js",
 	"scripts": {
-		"lint": "prettier --write . && eslint \"src/*.js\" \"bin/index.js\"",
+		"lint": "prettier --write .",
 		"test": "mocha || true",
 		"commit": "git-cz",
 		"preGenerateFiles": "node bin/index.js generatePreFiles",
