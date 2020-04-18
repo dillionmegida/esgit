@@ -66,8 +66,25 @@ const showGitCommand = (command) =>
 
 const execCommand = async (command) => {
 	const package = command.split(" ")[0];
-	commandOptions = command.replace(`${package} `, "").split(" ");
-	spawnSync(package, commandOptions, {
+	let commandOptions = command.replace(`${package} `, "").split(" ");
+	let commandOptionsFormatted = [];
+	let i = 0;
+
+	// command options needs to be formmatted for cases where a two words are joined together with quotes
+	while (i < commandOptions.length) {
+		if (commandOptions[i].startsWith('"')) {
+			let l = "";
+			while (!l.endsWith('"')) {
+				l += ` ${commandOptions[i]}`;
+				i++;
+			}
+			commandOptionsFormatted.push(l);
+		} else {
+			commandOptionsFormatted.push(commandOptions[i]);
+		}
+		i++;
+	}
+	spawnSync(package, commandOptionsFormatted, {
 		stdio: "inherit",
 	});
 	process.exit(0);

@@ -7,7 +7,6 @@ const {
 	requireValueMsg,
 } = require("./utils");
 const commands = require("./commands");
-const { pkgName } = require("./config");
 
 /**
  * Print real git command to the terminal and execute it
@@ -85,8 +84,17 @@ module.exports = (command, options) => {
 		}
 	}
 
+	// this line is important because, if this package does not know that a value is required
+	// a command like branch yo will throw a warning, saying this package does not recognize yo
+	// yo is seen as a command. But with acceptValue, yo is seen as a value
 	if (commandObject.acceptValue) {
-		const [...values] = options;
+		let [...values] = options;
+		values = values.map((value) => {
+			if (value.split(" ").length > 1) {
+				// then a connected string like "hello hi" is used
+				return `\"${value}\"`;
+			} else return value;
+		});
 		fullCommand += ` ${values.join(" ")}`;
 		return showGitAndExecute(fullCommand);
 	}
