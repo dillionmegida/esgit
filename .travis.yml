@@ -10,6 +10,6 @@ branches:
 notifications:
     email: false
 script:
-    - npm run validate
+    # - npm run validate
 after_success:
     - npm run release
