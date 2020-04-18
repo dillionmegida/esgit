@@ -10,7 +10,7 @@
 		"preGenerateFiles": "node bin/index.js generatePreFiles",
 		"install": "npm run preGenerateFiles",
 		"validate": "npm-run-all --parallel lint test",
-		"release": "semantic-release pre && npm publish && semantic-release post"
+		"release": "semantic-release"
 	},
 	"repository": {
 		"type": "git",
