@@ -1,16 +1,10 @@
 const { pkgName, pkgDefine } = require("./config");
 const commands = require("./commands");
 const { spawnSync } = require("child_process");
-const readline = require("readline");
 const chalk = require("chalk");
 const fs = require("fs");
 const path = require("path");
-const crossCommand = require("cross-cmd");
-
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout,
-});
+const { AutoComplete, Confirm, Input } = require("enquirer");
 
 const colors = {
 	red: chalk.redBright,
@@ -22,24 +16,80 @@ const colors = {
 /**
  * Gets yes or no answer from the user via the terminal
  * @param {String=} question which will be answered yes or no
- * @returns {Promise} which either resolves('yes') or ('no')
+ * @returns {Boolearn} true if yes, and false if no
  */
-const yesOrNo = (question) => {
-	return new Promise((resolve, reject) => {
-		rl.question(question, (choice) => {
-			if (choice === "y") {
-				return resolve("y");
-			} else {
-				return resolve("n");
-			}
-		});
+const yesOrNo = async (question) => {
+	const prompt = new Confirm({
+		name: "question",
+		message: question,
 	});
+
+	const answer = await prompt.run();
+	return answer;
+};
+
+/**
+ * Select from options with autocomplete feature
+ * @param {Array=} options
+ * @param {String=} selected option
+ */
+const selectOptions = async (question, options) => {
+	const prompt = new AutoComplete({
+		name: "flavor",
+		message: question,
+		limit: 10,
+		initial: 0,
+		choices: options,
+	});
+	try {
+		const answer = await prompt.run();
+		return answer;
+	} catch (err) {
+		console.log("exiting input...");
+		process.exit(0);
+	}
+};
+
+/**
+ * Format string which may contain spaces and return them in quotes
+ * @param {String=} string
+ */
+const formatSpacedString = (string) => {
+	if (string.split(" ").length > 1) {
+		// then a connected string like "hello hi" is used
+		return `\"${string}\"`;
+	}
+	return string;
+};
+
+/**
+ * Get answer from user
+ * @param {String=} question
+ */
+const getInput = async (question) => {
+	const prompt = new Input({
+		message: question,
+	});
+
+	try {
+		const answer = await prompt.run();
+		return answer;
+	} catch (err) {
+		console.log("exiting input...");
+		process.exit(0);
+	}
 };
 
 /**
  * Get all commands passed to the terminal
  */
-const getAllCommands = () => process.argv.slice(2).join(" ");
+const getAllCommands = () => {
+	let commands = process.argv.slice(2);
+	commands = commands.map((command) => {
+		return formatSpacedString(command);
+	});
+	return commands.join(" ");
+};
 
 /**
  * Prints message to the terminal
@@ -47,15 +97,6 @@ const getAllCommands = () => process.argv.slice(2).join(" ");
  * @param {String=} color defined by chalk package
  */
 const msg = (message, color = colors.white) => console.log(color(message));
-
-const requireValueMsg = (command, values) => {
-	const len = values.length;
-	msg(
-		`'${command}' needs ${len} value${len > 1 ? "s" : ""}  (${values})`,
-		colors.red
-	);
-	process.exit(0);
-};
 
 const showGitCommand = (command) =>
 	msg(`\ngit command: git ${command.replace("git ", "")}\n`, colors.yellow);
@@ -71,7 +112,7 @@ const execCommand = async (command) => {
 	let commandOptionsFormatted = [];
 	let i = 0;
 
-	// command options needs to be formmatted for cases where a two words are joined together with quotes
+	// command options needs to be formatted for cases where two words are joined together with quotes
 	while (i < commandOptions.length) {
 		if (commandOptions[i].startsWith('"')) {
 			let l = "";
@@ -130,13 +171,9 @@ const defineCommand = async (command, option) => {
 	if (savedCommand === undefined) {
 		msg(`${pkgName}:  '${command}' does not exist.`, chalk.redBright);
 
-		const choice = await yesOrNo(
-			`Execute 'git ${command} --help'? (y/n): `
-		);
+		const choice = await yesOrNo(`Execute 'git ${command} --help'?`);
 
-		rl.close();
-
-		if (choice === "y") return execCommand(`git ${command} --help`);
+		if (choice === true) return execCommand(`git ${command} --help`);
 		else process.exit(0);
 	}
 
@@ -150,9 +187,7 @@ const defineCommand = async (command, option) => {
 				`Execute 'git ${command} --help'? (y/n): `
 			);
 
-			rl.close();
-
-			if (choice === "y") return execCommand(`git ${command} --help`);
+			if (choice === true) return execCommand(`git ${command} --help`);
 			else process.exit(0);
 		}
 
@@ -174,9 +209,14 @@ const writeToFile = (title, body, pathToFile) => {
 };
 
 const readFile = (pathToFile) => {
-	execCommand(
-		`${crossCommand("readfile")} ${path.join(__dirname, pathToFile)}`
+	spawnSync(
+		"node",
+		["./node_modules/cross-cmd", "type", path.join(__dirname, pathToFile)],
+		{
+			stdio: "inherit",
+		}
 	);
+	process.exit(0);
 };
 
 const writeCommandHelp = (command) => {
@@ -184,18 +224,18 @@ const writeCommandHelp = (command) => {
 
 	const title = command;
 	let content = "";
-	for (let key in commands[command]) {
-		if (key !== "meaning") {
-			content += `\n      ${key}: `;
 
-			if (key === "options") {
-				for (let option in commands[command][key]) {
-					const meaning = commands[command][key][option].meaning;
-					content += `\n        ${option}: ${meaning}`;
-				}
-			} else content += `'${commands[command][key]}'`;
+	for (let key in commands[command]) {
+		content += `\n      ${key}: `;
+		const value = commands[command][key];
+
+		if (Array.isArray(value)) {
+			content += `'${value.join(", ")}'`;
+		} else {
+			content += `'${commands[command][key]}'`;
 		}
 	}
+	content += "\n";
 
 	writeToFile(title, content, `../help/${command}.txt`);
 };
@@ -214,15 +254,19 @@ const writeAllCommandsHelp = () => {
 			if (key !== "meaning") {
 				content += `\n      ${key}: `;
 
-				if (key === "options") {
-					for (let option in commands[command][key]) {
-						const meaning = commands[command][key][option].meaning;
-						content += `\n        ${option}: ${meaning}`;
-					}
-				} else content += `'${commands[command][key]}'`;
+				const value = commands[command][key];
+
+				if (Array.isArray(value)) {
+					content += `'${value.join(", ")}'`;
+				} else {
+					content += `'${commands[command][key]}'`;
+				}
 			}
 		}
 	}
+
+	content += "\n";
+
 	writeToFile(title, content, "../help/allcommands.txt");
 };
 
@@ -242,9 +286,11 @@ module.exports = {
 	showGitCommand,
 	attemptGitCommand,
 	showGitAndExecute,
-	requireValueMsg,
 	getAllCommandsHelp,
 	getCommandHelp,
 	writeAllCommandsHelp,
 	defineCommand,
+	selectOptions,
+	getInput,
+	formatSpacedString,
 };
