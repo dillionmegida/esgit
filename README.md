@@ -21,7 +21,7 @@ CLI package with simplified aliases for git commands.
 
 ### Installation
 
-It can be installed with `npm` which means you must have [node](https://nodejs.org/en/download/) installed to also install npm.
+It can be installed with `npm` which means you must have [node](https://nodejs.org/en/download/) installed for npm to be available.
 
 ```shell
 npm i -g esgit
@@ -31,7 +31,7 @@ The `g` flag is important so that the package can be used as a CLI command.
 
 ### Examples
 
-You can just enter `esgit` in your terminal to show the list of commands which you can choose from. When you do so, you see the commands displayed like this:
+You can enter `esgit` in your terminal to show the list of commands which you can choose from. When you do so, you see the commands displayed like this:
 
 <div style='max-width: 400px; margin: 0 auto'>
 <img src='./esgit.png' />
@@ -95,8 +95,8 @@ Find a list of all commands [here](./help/allcommands.txt)
 
 Your contribution to this project would be highly appreciated. Could be a documentation issue, pull request, feature request, they are all welcome.
 
--   [Create a pull request](https://github.com/dillionmegida//pulls)
--   [Open an issue](https://github.com/dillionmegida/cross-cmd/issues)
+-   [Create a pull request](https://github.com/dillionmegida/esgit/pulls)
+-   [Open an issue](https://github.com/dillionmegida/esgit/issues)
 
 ## LICENSE
 
