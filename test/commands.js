@@ -9,104 +9,39 @@ describe("Commands", function () {
 			commandKeys = Object.keys(commands);
 		});
 
-		it("all commands should have a meaning property except if git value is the same as command", function () {
+		it("all commands should have two properties: meaning and git", function () {
 			commandKeys.forEach(function (key) {
-				if (!commands[key].meaning)
-					assert.equal(commands[key].git, key);
+				let command = commands[key];
+				assert.property(command, "git");
+				assert.property(command, "meaning");
 			});
 		});
 
-		it("all commands are only expected to have five properties max: git, meaning, requireValues, acceptValue and options.", function () {
+		it("all commands can optionally have 'requireValues' property", function () {
 			commandKeys.forEach(function (key) {
 				let command = commands[key];
 				for (let property in command) {
 					assert.include(
-						[
-							"git",
-							"meaning",
-							"options",
-							"requireValues",
-							"acceptValue",
-						],
+						["git", "meaning", "requireValues"],
 						property
 					);
 				}
 			});
 		});
 
-		describe("'options' property if present", function () {
-			it("should be of type object", function () {
-				commandKeys.forEach(function (key) {
-					let command = commands[key];
-					for (let property in command) {
-						if (property === "options")
-							assert.typeOf(command[property], "object");
-					}
-				});
-			});
-			it("should have properties that begin with double hyphens", function () {
-				commandKeys.forEach(function (key) {
-					let command = commands[key];
-					for (let property in command) {
-						if (property === "options") {
-							for (let prop in command[property])
-								if (!/-{2}/.test(prop) || /-{3}/.test(prop))
-									assert.ok(false);
-						}
-					}
-				});
-			});
-			it("should have properties that have 'meaning' property", function () {
-				commandKeys.forEach(function (key) {
-					let command = commands[key];
-					for (let property in command) {
-						if (property === "options") {
-							for (let prop in command[property]) {
-								assert.property(
-									command[property][prop],
-									"meaning"
-								);
-							}
-						}
-					}
-				});
-			});
-		});
-
 		describe("'requireValues' property if present", function () {
-			it("should only exist when the git value is different from the command", function () {
+			it("should be of type array with max length of 2 and min, 1 and string values", function () {
 				commandKeys.forEach(function (key) {
-					let command = commands[key];
-					for (let property in command) {
-						if (key === command.git && property === "requireValues")
-							assert.ok(false);
-					}
-				});
-			});
+					const { requireValues = undefined } = commands[key];
 
-			it("should be of type array with max length of 2 and min, 1", function () {
-				commandKeys.forEach(function (key) {
-					if (commands[key].requireValues) {
+					if (requireValues !== undefined) {
 						assert.typeOf(commands[key].requireValues, "array");
 						assert.isBelow(commands[key].requireValues.length, 3);
 						assert.isAbove(commands[key].requireValues.length, 0);
-					}
 
-					if (commands[key].options) {
-						let options = commands[key].options;
-						for (let option in options) {
-							let optionProp = options[option];
-							if (optionProp.requireValues) {
-								assert.typeOf(
-									optionProp.requireValues,
-									"array"
-								);
-								assert.isBelow(
-									optionProp.requireValues.length,
-									2
-								);
-							}
-						}
+						requireValues.forEach(function (value) {
+							assert.typeOf(value, "string");
+						});
 					}
 				});
 			});
