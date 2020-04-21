@@ -34,7 +34,8 @@
 	},
 	"dependencies": {
 		"chalk": "^4.0.0",
-		"cross-cmd": "^1.0.0"
+		"cross-cmd": "^2.0.0",
+		"enquirer": "^2.3.5"
 	},
 	"config": {
 		"ghooks": {

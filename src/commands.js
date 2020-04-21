@@ -12,44 +12,35 @@
  * 5. for commands without 'meaning' key, git --help would be ran
  */
 module.exports = {
-	clone: {
-		git: "clone",
-		acceptValue: true,
+	"delete-branch-force": {
+		meaning: "Delete branch by force",
+		requireValues: ["branch-name"],
+		git: "branch --delete --force",
 	},
-	init: {
-		git: "init",
+	"short-format-status": {
+		meaning: "Show short format of git status",
+		git: "status --short",
 	},
-	push: {
-		git: "push",
+	"last-commit": {
+		meaning: "Print the last commit on a single line",
+		git: "log -1 --oneline",
 	},
-	add: {
-		git: "add",
-		acceptValue: true,
+	"edit-commit": {
+		meaning: "Edit the last commit made",
+		git: "commit --amend -m",
+		requireValues: ["new-commit-message"],
 	},
-	branch: {
-		meaning: "List, create, or delete branches",
-		git: "branch",
-		options: {
-			"--delete-force": {
-				meaning: "Delete branch",
-				requireValues: ["branch-name"],
-				git: "--delete --force",
-			},
-		},
-		acceptValue: true,
+	"new-change-recommit": {
+		meaning: "Add new changes to a previous commit that hasn't been pushed",
+		git: "commit --amend --no-edit",
 	},
-	status: {
-		meaning: "Show the working tree status",
-		git: "status",
-		options: {
-			"--short-format": {
-				meaning: "Show short format of git status",
-				git: "--short",
-			},
-		},
+	"remove-last-master-commit": {
+		meaning: "Remove the last commit from master that hasn't been pushed",
+		git: "reset HEAD~ --hard",
 	},
-	commit: {
-		git: "commit",
-		acceptValue: true,
+	"remove-last-master-commit-keep-changes": {
+		meaning:
+			"Remove the last commit from master that hasn't been pushed but keep the changes",
+		git: "reset HEAD~ --soft",
 	},
 };

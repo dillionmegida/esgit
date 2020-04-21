@@ -4,7 +4,10 @@ const {
 	attemptGitCommand,
 	getAllCommands,
 	showGitAndExecute,
-	requireValueMsg,
+	selectOptions,
+	getCommandHelp,
+	getInput,
+	formatSpacedString,
 } = require("./utils");
 const commands = require("./commands");
 
@@ -14,7 +17,43 @@ const commands = require("./commands");
  * @param {Array} options [command, options] = argv._
  * @param {Object} allArguments
  */
-module.exports = (command, options) => {
+module.exports = async (command, options) => {
+	if (command === undefined || command === "help") {
+		let help = false;
+
+		if (command === "help") help = true;
+
+		const allCommands = [];
+		let longestCommandLength = 0;
+
+		for (let command in commands) {
+			if (command.length > longestCommandLength)
+				longestCommandLength = command.length;
+		}
+
+		for (let command in commands) {
+			// generate spaces so that the options align
+			let spaces = [];
+			for (
+				let i = 0;
+				i < longestCommandLength + 3 - command.length;
+				i++
+			) {
+				spaces.push(" ");
+			}
+			allCommands.push(
+				`${command}${spaces.join("")}>   ${colors.blue(
+					commands[command].meaning
+				)}`
+			);
+		}
+
+		command = await selectOptions(`Select command`, allCommands);
+		command = command.split(" ")[0];
+
+		if (help) return getCommandHelp(command);
+	}
+
 	const commandObject = commands[command] || undefined;
 	const gitCommand = commandObject ? commandObject.git : undefined;
 	let fullCommand = `git ${gitCommand}`;
@@ -25,77 +64,69 @@ module.exports = (command, options) => {
 		return attemptGitCommand(allCommands, `'${command}' does not exist`);
 	}
 
+	if (commandObject.requireValues && options.length === 0) {
+		// no options are passed and value(s) is required
+
+		const { requireValues } = commandObject;
+		const len = requireValues.length;
+
+		msg(
+			`'${command}' needs ${len} value${
+				len > 1 ? "s" : ""
+			}  (${requireValues.join(", ")})`,
+			colors.blue
+		);
+
+		let val1,
+			val2 = null;
+
+		val1 = await getInput(`${requireValues[0]}?`);
+		if (requireValues.length > 1)
+			val2 = await getInput(`${requireValues[1]}`);
+
+		val1 = formatSpacedString(val1);
+		if (val2) val2 = formatSpacedString(val2);
+
+		fullCommand += ` ${val1}${val2 !== null ? " " + val2 : ""}`;
+
+		msg(commandObject.meaning, colors.yellow);
+
+		return showGitAndExecute(fullCommand);
+	}
+
+	// if the interactive platform is not used, then the user entered the command
+	// directly on the terminal...the following handles such commands
+
 	if (options.length === 0) {
 		// no options passed
 
-		if (commandObject.requireValues) {
-			const { requireValues } = commandObject;
-			requireValueMsg(command, requireValues.join(", "));
-			return process.exit(0);
-		}
-
-		if (commandObject.meaning) msg(commandObject.meaning, colors.yellow);
+		msg(commandObject.meaning, colors.yellow);
 
 		return showGitAndExecute(fullCommand);
 	}
 
 	if (commandObject.requireValues) {
 		const { requireValues } = commandObject;
-		const [val1, val2] = options;
-		const nums = requireValues.length;
+		const len = requireValues.length;
 
-		if (val2 === undefined && nums === 2) {
-			requireValueMsg(command, requireValues.join(", "));
-			return process.exit(0);
+		if (options.length === 0 || options.length < len) {
+			return msg(
+				`'${command}' needs ${len} value${
+					len > 1 ? "s" : ""
+				}  (${requireValues.join(", ")})`,
+				colors.red
+			);
 		}
 
-		fullCommand += ` ${val1}`;
-		if (val2) fullCommand += ` ${val2}`;
+		let [val1, val2 = null] = options;
 
-		return showGitAndExecute(fullCommand);
-	}
+		val1 = formatSpacedString(val1);
+		if (val2) val2 = formatSpacedString(val2);
 
-	if (commandObject.options) {
-		const [option, ...rest] = options;
-		const commandOption = commandObject.options[option] || undefined;
+		fullCommand += ` ${val1}${val2 !== null ? " " + val2 : ""}`;
 
-		if (commandOption !== undefined) {
-			fullCommand += ` ${commandOption.git}`;
-			msg(commandOption.meaning, colors.yellow);
+		msg(commandObject.meaning, colors.yellow);
 
-			const requireValues = commandOption.requireValues || undefined;
-
-			if (requireValues !== undefined) {
-				if (rest.length < 1 || requireValues.length > rest.length)
-					return requireValueMsg(
-						allCommands,
-						commandOption.requireValues
-					);
-
-				const values =
-					commandOption.requireValues.length < 2
-						? rest[0]
-						: rest.slice(0, 2).join(" "); // slice incase more options are passed
-
-				fullCommand += ` ${values}`;
-			}
-
-			return showGitAndExecute(fullCommand);
-		}
-	}
-
-	// this line is important because, if this package does not know that a value is required
-	// a command like branch yo will throw a warning, saying this package does not recognize yo
-	// yo is seen as a command. But with acceptValue, yo is seen as a value
-	if (commandObject.acceptValue) {
-		let [...values] = options;
-		values = values.map((value) => {
-			if (value.split(" ").length > 1) {
-				// then a connected string like "hello hi" is used
-				return `\"${value}\"`;
-			} else return value;
-		});
-		fullCommand += ` ${values.join(" ")}`;
 		return showGitAndExecute(fullCommand);
 	}
 
