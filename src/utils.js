@@ -16,7 +16,7 @@ const colors = {
 /**
  * Gets yes or no answer from the user via the terminal
  * @param {String=} question which will be answered yes or no
- * @returns {Boolearn} true if yes, and false if no
+ * @returns {Boolean} true if yes, and false if no
  */
 const yesOrNo = async (question) => {
 	const prompt = new Confirm({
@@ -24,23 +24,30 @@ const yesOrNo = async (question) => {
 		message: question,
 	});
 
-	const answer = await prompt.run();
-	return answer;
+	try {
+		const answer = await prompt.run();
+		return answer;
+	} catch {
+		console.log("exiting input...");
+		process.exit(0);
+	}
 };
 
 /**
  * Select from options with autocomplete feature
+ * @param {String=} question
  * @param {Array=} options
- * @param {String=} selected option
+ * @returns {String} selected option
  */
 const selectOptions = async (question, options) => {
 	const prompt = new AutoComplete({
-		name: "flavor",
+		name: "commands",
 		message: question,
 		limit: 10,
 		initial: 0,
 		choices: options,
 	});
+
 	try {
 		const answer = await prompt.run();
 		return answer;
@@ -53,6 +60,7 @@ const selectOptions = async (question, options) => {
 /**
  * Format string which may contain spaces and return them in quotes
  * @param {String=} string
+ * @returns {String} formatted string
  */
 const formatSpacedString = (string) => {
 	if (string.split(" ").length > 1) {
@@ -63,8 +71,9 @@ const formatSpacedString = (string) => {
 };
 
 /**
- * Get answer from user
+ * Get answer from terminal
  * @param {String=} question
+ * @returns {String} answer
  */
 const getInput = async (question) => {
 	const prompt = new Input({
@@ -82,12 +91,15 @@ const getInput = async (question) => {
 
 /**
  * Get all commands passed to the terminal
+ * @returns {String} all commands passed to terminal
  */
 const getAllCommands = () => {
 	let commands = process.argv.slice(2);
+
 	commands = commands.map((command) => {
 		return formatSpacedString(command);
 	});
+
 	return commands.join(" ");
 };
 
@@ -98,6 +110,10 @@ const getAllCommands = () => {
  */
 const msg = (message, color = colors.white) => console.log(color(message));
 
+/**
+ * Show git command on the terminal
+ * @param {String=} command 
+ */
 const showGitCommand = (command) =>
 	msg(`\ngit command: git ${command.replace("git ", "")}\n`, colors.yellow);
 
@@ -105,7 +121,6 @@ const showGitCommand = (command) =>
  * Execute command on the terminal
  * @param {String=} command
  */
-
 const execCommand = async (command) => {
 	const package = command.split(" ")[0];
 	let commandOptions = command.replace(`${package} `, "").split(" ");
@@ -132,6 +147,10 @@ const execCommand = async (command) => {
 	process.exit(0);
 };
 
+/**
+ * Show git command and execute
+ * @param {String=} command 
+ */
 const showGitAndExecute = (command) => {
 	showGitCommand(command);
 	execCommand(command);
@@ -200,6 +219,12 @@ const defineCommand = async (command, option) => {
 	}
 };
 
+/**
+ * Write to a file
+ * @param {String=} title 
+ * @param {String=} body 
+ * @param {String=} pathToFile 
+ */
 const writeToFile = (title, body, pathToFile) => {
 	let content = `\n  ${pkgName}: ${pkgDefine} ✨\n\n    ${title}\n    ${title
 		.split("")
@@ -208,10 +233,14 @@ const writeToFile = (title, body, pathToFile) => {
 	fs.writeFileSync(path.join(__dirname, pathToFile), content);
 };
 
+/**
+ * Read a file
+ * @param {String} pathToFile 
+ */
 const readFile = (pathToFile) => {
 	spawnSync(
 		"node",
-		["./node_modules/cross-cmd", "type", path.join(__dirname, pathToFile)],
+		["./node_modules/cross-cmd", "cat", path.join(__dirname, pathToFile)],
 		{
 			stdio: "inherit",
 		}
@@ -219,6 +248,10 @@ const readFile = (pathToFile) => {
 	process.exit(0);
 };
 
+/**
+ * Write the help file of a command
+ * @param {String=} command 
+ */
 const writeCommandHelp = (command) => {
 	if (commands[command] === undefined) return;
 
@@ -240,6 +273,9 @@ const writeCommandHelp = (command) => {
 	writeToFile(title, content, `../help/${command}.txt`);
 };
 
+/**
+ * Write the help file of all commands
+ */
 const writeAllCommandsHelp = () => {
 	const title = `All commands in ${pkgName}`;
 	let content = "";
@@ -270,10 +306,17 @@ const writeAllCommandsHelp = () => {
 	writeToFile(title, content, "../help/allcommands.txt");
 };
 
+/**
+ * Read the all commands help file
+ */
 const getAllCommandsHelp = () => {
 	readFile("../help/allcommands.txt");
 };
 
+/**
+ * Read the help file of a command
+ * @param {String=} command 
+ */
 const getCommandHelp = (command) => {
 	readFile(`../help/${command}.txt`);
 };

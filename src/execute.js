@@ -12,10 +12,9 @@ const {
 const commands = require("./commands");
 
 /**
- * Print real git command to the terminal and execute it
+ * Process and execute command on the terminal
  * @param {String=} command
  * @param {Array} options [command, options] = argv._
- * @param {Object} allArguments
  */
 module.exports = async (command, options) => {
 	if (command === undefined || command === "help") {
@@ -34,6 +33,7 @@ module.exports = async (command, options) => {
 		for (let command in commands) {
 			// generate spaces so that the options align
 			let spaces = [];
+
 			for (
 				let i = 0;
 				i < longestCommandLength + 3 - command.length;
@@ -41,6 +41,7 @@ module.exports = async (command, options) => {
 			) {
 				spaces.push(" ");
 			}
+
 			allCommands.push(
 				`${command}${spaces.join("")}>   ${colors.blue(
 					commands[command].meaning
@@ -65,7 +66,7 @@ module.exports = async (command, options) => {
 	}
 
 	if (commandObject.requireValues && options.length === 0) {
-		// no options are passed and value(s) is required
+		// no options are passed and value(s) are required
 
 		const { requireValues } = commandObject;
 		const len = requireValues.length;
